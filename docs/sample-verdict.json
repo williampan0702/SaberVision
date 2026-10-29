@@ -1,0 +1,61 @@
+{
+  "schema_version": "sabervision_mvp_1.0",
+  "product_status": "offline_prototype_not_official_referee_system",
+  "example_case": "mens_02_double",
+  "policy": {
+    "single_light": "Any one clear automatic lamp source resolves the touch; no confidence/N-of-3 voting.",
+    "double_light": "Movement, lunge and extension onset alone never decide priority. A very strong lamp-anchored speed advantage must exceed 1.70 body-heights/s in both 0.35s and 0.75s windows with the same direction; otherwise review.",
+    "simultaneous": "A confirmed simultaneous double light produces no point for either side; absence of confirmation remains review.",
+    "blade": "Visible guard/tip, contact and parry candidates are supporting evidence only at current model quality.",
+    "safety": "Missing evidence is not converted into negative evidence."
+  },
+  "source_availability": {
+    "action": true,
+    "blade": true,
+    "blade_timing": true,
+    "device_events": 2
+  },
+  "events": [
+    {
+      "event_id": 1,
+      "start_sec": 5.6,
+      "end_sec": 9.6933,
+      "touch_status": "resolved_by_any_clear_source",
+      "touch_state": "double",
+      "device_evidence": {
+        "resolution_rule": "physical_near_simultaneous_double_over_single_subset",
+        "automatic_source_results": {
+          "physical_temporal_lamp_events": "double",
+          "device_gated_lamp_events": "right"
+        }
+      },
+      "action": {
+        "lamp_anchored_speed": {
+          "state": "candidate",
+          "candidate_side": "left",
+          "window_sec": 0.35,
+          "left_minus_right": 4.6402,
+          "sample_counts": {
+            "left": 8,
+            "right": 8
+          },
+          "consistency_window_sec": 0.75,
+          "consistency_left_minus_right": 4.6062,
+          "direction_consistent_075": true
+        }
+      },
+      "verdict": {
+        "status": "prototype_priority_award_strong_speed",
+        "awarded_side": "left",
+        "point_awarded": true,
+        "reason": "Very strong lamp-anchored speed advantage exceeds the automatic margin in both 0.35s and 0.75s windows."
+      }
+    }
+  ],
+  "summary": {
+    "events": 1,
+    "automatic_awards": 1,
+    "review_required": 0,
+    "simultaneous_no_point": 0
+  }
+}

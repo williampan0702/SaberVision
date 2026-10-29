@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+*.log
+.pytest_cache/
+.idea/
+.vscode/
+
+# Runtime outputs and large duplicated evaluation media
+results/
+outputs/
+diverse_tests/
+demo/
+referee_v5_4/demos/
+referee_v5_4/validation/
+double_light_evaluation_v*/
+Ultralytics/
+
+# Local scratch/audit files
+tmp*/
+*.tmp
+environment_check.json

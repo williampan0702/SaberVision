@@ -1,0 +1,8 @@
+{
+  "name": "SaberVision referee recognition",
+  "version": "5.4.0-physical-fusion",
+  "released": "2026-08-29",
+  "entrypoint": "run_segmented_universal_v54.ps1",
+  "single_segment_entrypoint": "run_universal_referee_v54.ps1",
+  "policy": "three-model locator fusion, central physical-device priority, temporal color fallback, conservative abstention"
+}

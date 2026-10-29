@@ -1,0 +1,8 @@
+# Python 3.10 or 3.11 is recommended.
+# For NVIDIA GPU acceleration, install the matching PyTorch CUDA build first:
+# https://pytorch.org/get-started/locally/
+numpy>=1.26,<3
+opencv-python>=4.10,<5
+torch>=2.2
+ultralytics>=8.3,<9
+

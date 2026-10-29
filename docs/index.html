@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="SaberVision 佩剑判罚 MVP：Pose、剑身、裁判器亮灯与同步证据融合演示。">
+  <title>SaberVision MVP</title>
+  <style>
+    :root { color-scheme: dark; --bg:#071018; --panel:#0d1b26; --line:#244052; --text:#edf7fb; --muted:#9ab2bf; --cyan:#3de2d0; --amber:#ffbd59; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:radial-gradient(circle at 80% 0,#123b46 0,transparent 35%),var(--bg); color:var(--text); font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { width:min(1120px,calc(100% - 32px)); margin:auto; padding:72px 0 80px; }
+    .tag { display:inline-flex; gap:8px; align-items:center; color:var(--cyan); border:1px solid #28796f; border-radius:999px; padding:5px 12px; font-size:13px; letter-spacing:.05em; }
+    h1 { margin:18px 0 10px; font-size:clamp(42px,8vw,86px); line-height:.95; letter-spacing:-.055em; }
+    h1 span { color:var(--cyan); }
+    .lead { max-width:760px; color:#c8d7df; font-size:clamp(18px,2.2vw,24px); }
+    .notice { margin:28px 0; padding:16px 18px; border-left:3px solid var(--amber); background:#211b12; color:#ffe1ad; }
+    video { width:100%; display:block; margin:34px 0; border:1px solid var(--line); border-radius:16px; background:#000; box-shadow:0 30px 80px #0008; }
+    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .card { background:linear-gradient(145deg,#102532,#0b1720); border:1px solid var(--line); border-radius:14px; padding:20px; }
+    .num { color:var(--cyan); font-size:34px; font-weight:750; }
+    h2 { margin-top:54px; font-size:28px; }
+    code { background:#102735; border:1px solid #25485d; padding:2px 6px; border-radius:5px; }
+    .actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:28px; }
+    a.button { color:#04110f; background:var(--cyan); padding:11px 17px; border-radius:8px; font-weight:700; text-decoration:none; }
+    a.secondary { color:var(--text); background:#142733; border:1px solid var(--line); }
+    footer { margin-top:60px; color:var(--muted); font-size:14px; }
+    @media (max-width:760px) { main{padding-top:42px}.grid{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="tag">⚔ OFFLINE PROTOTYPE</span>
+    <h1>Saber<span>Vision</span></h1>
+    <p class="lead">把运动员检测、精细 Pose、护手盘—剑尖方向、裁判器亮灯和时间同步证据组合成一个可运行的佩剑判罚原型。</p>
+    <div class="notice">这是工程原型，不是正式比赛认证裁判系统。网页展示真实离线运行结果；完整视频推理需要在 Python/FFmpeg 环境中运行。</div>
+
+    <video controls preload="metadata" poster="assets/demo-poster.jpg">
+      <source src="assets/SaberVision_MVP_demo.mp4" type="video/mp4">
+      浏览器不支持视频播放。
+    </video>
+
+    <section class="grid" aria-label="项目状态">
+      <article class="card"><div class="num">1/1</div><strong>灯源即可采用</strong><p>不做置信度投票，也不要求三个来源满足几个。</p></article>
+      <article class="card"><div class="num">100</div><strong>双灯工程样本</strong><p>跨场馆安全池；19 个双方不得分样本保持零错误自动给分。</p></article>
+      <article class="card"><div class="num">1.70</div><strong>自动优先权门槛</strong><p>0.35 秒与 0.75 秒两个窗口必须同向跨过门槛。</p></article>
+    </section>
+
+    <h2>现在能做什么</h2>
+    <p>输入单回合视频后，流水线会输出带 Pose 与判罚叠加的 H.264 视频、机器可读的 <code>verdict.json</code>，以及需要人工判断时的 12 帧图和 0.5 倍速复核页。</p>
+    <div class="actions">
+      <a class="button" href="sample-verdict.json">查看样例判罚 JSON</a>
+      <a class="button secondary" href="README_中文.md">本地运行说明</a>
+    </div>
+
+    <footer>灯状态与佩剑优先权分开处理：看清哪盏灯是一件事，判定谁有优先权是另一件事。</footer>
+  </main>
+</body>
+</html>

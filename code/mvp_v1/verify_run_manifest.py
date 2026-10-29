@@ -7,7 +7,7 @@ import argparse
 import hashlib
 import json
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 
 
@@ -31,15 +31,26 @@ def content_sha256(path: Path, full_hash_limit: int = 64 * 1024 * 1024) -> str:
 def resolve_signed_path(
     signature: dict[str, Any], manifest: dict[str, Any], manifest_path: Path
 ) -> Path:
-    original = Path(str(signature.get("path") or ""))
+    original_text = str(signature.get("path") or "")
+    original = Path(original_text)
     old_root_text = str(manifest.get("output_dir") or "")
     if old_root_text:
+        # Manifests may be verified on a different operating system from the
+        # one that produced them.  Parse stored paths using their own syntax
+        # instead of the verifier host's pathlib flavour.
+        stored_path_type = (
+            PureWindowsPath
+            if "\\" in original_text or "\\" in old_root_text
+            else PurePosixPath
+        )
         try:
-            relative = original.relative_to(Path(old_root_text))
+            relative = stored_path_type(original_text).relative_to(
+                stored_path_type(old_root_text)
+            )
         except (ValueError, OSError):
             pass
         else:
-            relocated = manifest_path.resolve().parent / relative
+            relocated = manifest_path.resolve().parent.joinpath(*relative.parts)
             if relocated.is_file():
                 return relocated
     if original.is_file():

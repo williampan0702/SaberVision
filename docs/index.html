@@ -15,17 +15,25 @@
     h1 span { color:var(--cyan); }
     .lead { max-width:760px; color:#c8d7df; font-size:clamp(18px,2.2vw,24px); }
     .notice { margin:28px 0; padding:16px 18px; border-left:3px solid var(--amber); background:#211b12; color:#ffe1ad; }
+    .video-caption { margin:30px 0 -20px; color:var(--muted); }
+    .video-caption strong { color:var(--text); }
     video { width:100%; display:block; margin:34px 0; border:1px solid var(--line); border-radius:16px; background:#000; box-shadow:0 30px 80px #0008; }
     .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .workflow { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
     .card { background:linear-gradient(145deg,#102532,#0b1720); border:1px solid var(--line); border-radius:14px; padding:20px; }
+    .card h3 { margin:6px 0 8px; font-size:18px; }
+    .card p { margin-bottom:0; color:#b8cbd5; }
+    .step { color:var(--cyan); font-size:13px; font-weight:750; letter-spacing:.08em; }
     .num { color:var(--cyan); font-size:34px; font-weight:750; }
     h2 { margin-top:54px; font-size:28px; }
     code { background:#102735; border:1px solid #25485d; padding:2px 6px; border-radius:5px; }
+    pre { overflow:auto; padding:18px; border:1px solid var(--line); border-radius:12px; background:#061018; color:#d7f5f0; }
     .actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:28px; }
     a.button { color:#04110f; background:var(--cyan); padding:11px 17px; border-radius:8px; font-weight:700; text-decoration:none; }
     a.secondary { color:var(--text); background:#142733; border:1px solid var(--line); }
     footer { margin-top:60px; color:var(--muted); font-size:14px; }
-    @media (max-width:760px) { main{padding-top:42px}.grid{grid-template-columns:1fr} }
+    @media (max-width:900px) { .workflow{grid-template-columns:repeat(2,1fr)} }
+    @media (max-width:760px) { main{padding-top:42px}.grid,.workflow{grid-template-columns:1fr} }
   </style>
 </head>
 <body>
@@ -35,22 +43,38 @@
     <p class="lead">A working sabre-refereeing prototype that combines fencer detection, detailed pose estimation, guard-to-tip direction, score-box lamps, and time-synchronized evidence.</p>
     <div class="notice">This is an engineering prototype, not an officially certified competition referee. This page shows genuine offline results; full video inference runs in a local Python and FFmpeg environment.</div>
 
-    <video controls preload="metadata" poster="assets/demo-poster.jpg">
+    <p class="video-caption"><strong>24-second processed-results montage.</strong> Four real outputs show fencer detection, pose and weapon direction, score-box light tracking, and double-light priority review.</p>
+    <video controls playsinline preload="metadata" poster="assets/demo-poster.jpg" aria-label="24-second SaberVision processed-results montage">
       <source src="assets/SaberVision_MVP_demo.mp4" type="video/mp4">
       Your browser does not support embedded video.
     </video>
 
+    <h2>What the video shows</h2>
+    <section class="workflow" aria-label="SaberVision processing modules">
+      <article class="card"><div class="step">01 · DETECT</div><h3>Locate both fencers</h3><p>Person boxes keep later analysis focused on the athletes rather than the whole broadcast frame.</p></article>
+      <article class="card"><div class="step">02 · TRACK</div><h3>Follow motion over time</h3><p>Pose keypoints and weapon-wrist direction are evaluated across consecutive frames, not from one still image.</p></article>
+      <article class="card"><div class="step">03 · SYNCHRONIZE</div><h3>Read the score-box lamps</h3><p>Lamp events anchor the relevant time window and are kept separate from the priority decision.</p></article>
+      <article class="card"><div class="step">04 · DECIDE</div><h3>Award or request review</h3><p>Double-light priority is automatic only when the synchronized motion evidence clears the safety rule.</p></article>
+    </section>
+
+    <h2>Current prototype safeguards</h2>
     <section class="grid" aria-label="Project status">
       <article class="card"><div class="num">1/1</div><strong>One clear lamp source is enough</strong><p>The system does not use confidence voting or an N-of-3 requirement.</p></article>
       <article class="card"><div class="num">100</div><strong>Double-light engineering cases</strong><p>A cross-venue safety set, including 19 no-award cases with zero incorrect automatic awards.</p></article>
       <article class="card"><div class="num">1.70</div><strong>Automatic priority threshold</strong><p>The 0.35 s and 0.75 s motion windows must cross the threshold in the same direction.</p></article>
     </section>
 
-    <h2>What it produces</h2>
+    <h2>Run the system locally</h2>
+    <p>GitHub Pages hosts this explanation and the processed demo video. Full inference runs offline because it requires Python, PyTorch, OpenCV, and FFmpeg.</p>
+    <pre><code>python -m pip install -r requirements.txt
+&amp; ".\run_sabervision_mvp.ps1" -InputVideo "D:\path\exchange.mp4"</code></pre>
+
+    <h2>Outputs</h2>
     <p>Given one exchange clip, the pipeline produces an H.264 video with pose and decision overlays, a machine-readable <code>verdict.json</code>, and a review page with a 12-frame contact sheet and half-speed clip whenever human review is required.</p>
     <div class="actions">
       <a class="button" href="sample-verdict.json">View sample verdict JSON</a>
-      <a class="button secondary" href="RUNNING_LOCALLY.md">Run locally</a>
+      <a class="button secondary" href="https://github.com/williampan0702/SaberVision/blob/main/docs/RUNNING_LOCALLY.md">Full local setup guide</a>
+      <a class="button secondary" href="https://github.com/williampan0702/SaberVision">View source code</a>
     </div>
 
     <footer>Lamp-state recognition and sabre priority are handled separately: identifying which lamp is on is different from deciding who has priority.</footer>

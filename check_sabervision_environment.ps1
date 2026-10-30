@@ -22,7 +22,7 @@ if ([string]::IsNullOrWhiteSpace($Python)) {
 }
 
 if (-not (Test-Path -LiteralPath $Python -PathType Leaf)) {
-    throw "找不到 Python。请用 -Python 指定要检查的 python.exe。"
+    throw "Python was not found. Use -Python to specify the python.exe to inspect."
 }
 if ([string]::IsNullOrWhiteSpace($Output)) {
     $Output = Join-Path $packageRoot "environment_check.json"
@@ -31,10 +31,10 @@ if ([string]::IsNullOrWhiteSpace($Output)) {
 & $Python $checker --package-root $packageRoot --output $Output
 $exitCode = $LASTEXITCODE
 Write-Host ""
-Write-Host "体检报告：$Output"
+Write-Host "Environment report: $Output"
 if ($exitCode -eq 0) {
-    Write-Host "SaberVision 运行环境完整。" -ForegroundColor Green
+    Write-Host "The SaberVision runtime environment is complete." -ForegroundColor Green
 } else {
-    Write-Host "运行环境不完整；请按上方 JSON 中的缺失项处理。" -ForegroundColor Yellow
+    Write-Host "The runtime environment is incomplete. Resolve the missing items listed in the JSON report." -ForegroundColor Yellow
 }
 exit $exitCode

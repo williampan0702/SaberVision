@@ -20,7 +20,7 @@ if (-not $LocatorModel) {
     $LocatorModel = Join-Path $packageRoot "models\score_device_v54_physical.pt"
 }
 if (-not (Test-Path -LiteralPath $LocatorModel)) {
-    throw "找不到裁判器模型：$LocatorModel"
+    throw "Score-box locator model not found: $LocatorModel"
 }
 
 $anchorDir = Join-Path $OutputDir "01_anchors"
@@ -41,49 +41,49 @@ New-Item -ItemType Directory -Force -Path $anchorDir, $primaryDir, $tripleDir, $
 
 & $Python (Join-Path $scriptDir "scan_device_anchors_v46.py") `
     $InputVideo $anchorDir --model $LocatorModel --fps $ProbeFps --start $Start --end $End
-if ($LASTEXITCODE -ne 0) { throw "候选扫描失败" }
+if ($LASTEXITCODE -ne 0) { throw "Candidate scan failed" }
 
 $anchors = Join-Path $anchorDir "device_anchors.csv"
 if ($FallbackLocatorModel -and (Test-Path -LiteralPath $FallbackLocatorModel)) {
     New-Item -ItemType Directory -Force -Path $fallbackAnchorDir, $mergedAnchorDir | Out-Null
     & $Python (Join-Path $scriptDir "scan_device_anchors_v46.py") `
         $InputVideo $fallbackAnchorDir --model $FallbackLocatorModel --fps $ProbeFps --start $Start --end $End
-    if ($LASTEXITCODE -ne 0) { throw "备用定位模型候选扫描失败" }
+    if ($LASTEXITCODE -ne 0) { throw "Fallback locator candidate scan failed" }
     & $Python (Join-Path $scriptDir "merge_device_anchors_v51.py") `
         $anchors (Join-Path $fallbackAnchorDir "device_anchors.csv") $mergedAnchorDir
-    if ($LASTEXITCODE -ne 0) { throw "双定位模型候选融合失败" }
+    if ($LASTEXITCODE -ne 0) { throw "Two-locator candidate fusion failed" }
     $anchors = Join-Path $mergedAnchorDir "device_anchors.csv"
 }
 if ($LegacyLocatorModel -and (Test-Path -LiteralPath $LegacyLocatorModel)) {
     New-Item -ItemType Directory -Force -Path $legacyAnchorDir, $allMergedAnchorDir | Out-Null
     & $Python (Join-Path $scriptDir "scan_device_anchors_v46.py") `
         $InputVideo $legacyAnchorDir --model $LegacyLocatorModel --fps $ProbeFps --start $Start --end $End
-    if ($LASTEXITCODE -ne 0) { throw "旧场馆定位模型候选扫描失败" }
+    if ($LASTEXITCODE -ne 0) { throw "Legacy venue locator candidate scan failed" }
     & $Python (Join-Path $scriptDir "merge_device_anchors_v51.py") `
         $anchors (Join-Path $legacyAnchorDir "device_anchors.csv") $allMergedAnchorDir
-    if ($LASTEXITCODE -ne 0) { throw "三定位模型候选融合失败" }
+    if ($LASTEXITCODE -ne 0) { throw "Three-locator candidate fusion failed" }
     $anchors = Join-Path $allMergedAnchorDir "device_anchors.csv"
 }
 & $Python (Join-Path $scriptDir "track_device_anchors_v46.py") `
     $InputVideo $anchors $primaryDir --required-hits 3
-if ($LASTEXITCODE -ne 0) { throw "普通轨迹探测失败" }
+if ($LASTEXITCODE -ne 0) { throw "Standard track probing failed" }
 
 & $Python (Join-Path $scriptDir "track_triple_panel_layout_v47.py") `
     $InputVideo $anchors $tripleDir --start $Start --end $End --fps $ProbeFps
-if ($LASTEXITCODE -ne 0) { throw "三屏布局探测失败" }
+if ($LASTEXITCODE -ne 0) { throw "Three-screen layout probing failed" }
 
 & $Python (Join-Path $scriptDir "infer_center_from_dual_scoreboards_v47.py") `
     $InputVideo $dualScoreboardDir --start $Start --end $End --fps $ProbeFps
-if ($LASTEXITCODE -ne 0) { throw "双比分屏几何探测失败" }
+if ($LASTEXITCODE -ne 0) { throw "Dual-score-screen geometry probing failed" }
 
 & $Python (Join-Path $scriptDir "detect_scoreboard_structure_v47.py") `
     $InputVideo $structureDir --start $Start --end $End --fps $ProbeFps
-if ($LASTEXITCODE -ne 0) { throw "颜色结构探测失败" }
+if ($LASTEXITCODE -ne 0) { throw "Color-structure probing failed" }
 
 & $Python (Join-Path $scriptDir "fuse_structure_track_v47.py") `
     $InputVideo (Join-Path $structureDir "structure_boxes.csv") $structureTrackDir `
     --fps $ProbeFps --anchors $anchors
-if ($LASTEXITCODE -ne 0) { throw "结构双确认失败" }
+if ($LASTEXITCODE -ne 0) { throw "Structure cross-check failed" }
 
 $tripleSummary = Get-Content -LiteralPath (Join-Path $tripleDir "summary.json") -Raw | ConvertFrom-Json
 $sampledFrames = [int]$tripleSummary.sampled_frames
@@ -95,7 +95,7 @@ $minimumValidFrames = [math]::Min(20, [math]::Max(4, [math]::Ceiling($sampledFra
     --dual-scoreboard-summary (Join-Path $dualScoreboardDir "summary.json") `
     --structure-summary (Join-Path $structureTrackDir "summary.json") `
     --minimum-valid-frames $minimumValidFrames
-if ($LASTEXITCODE -ne 0) { throw "自动路由选择失败" }
+if ($LASTEXITCODE -ne 0) { throw "Automatic route selection failed" }
 
 $routeData = Get-Content -LiteralPath $routePath -Raw | ConvertFrom-Json
 if ($routeData.route -eq "dual_scoreboard") {
@@ -104,7 +104,7 @@ if ($routeData.route -eq "dual_scoreboard") {
         $InputVideo (Join-Path $dualScoreboardDir "dual_scoreboard_track.csv") $dualScoreboardFlowDir `
         --start $Start --end $End --fps 10 --required-hits 2 --alpha 0.22 `
         --flow-max-gap 7 --hold-max-gap 0.6 --cut-threshold 0.72 --feature-factor 1.8
-    if ($LASTEXITCODE -ne 0) { throw "双比分屏光流细化失败" }
+    if ($LASTEXITCODE -ne 0) { throw "Dual-score-screen optical-flow refinement failed" }
     $routeData | Add-Member -NotePropertyName selected_track -NotePropertyValue (Join-Path $dualScoreboardFlowDir "stable_device_track.csv") -Force
     $routeData | Add-Member -NotePropertyName selected_track_summary -NotePropertyValue (Join-Path $dualScoreboardFlowDir "summary.json") -Force
     $routeData | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $routePath -Encoding utf8
@@ -115,13 +115,13 @@ elseif ($routeData.route -in @("primary_v46", "review_required")) {
         $InputVideo $anchors $primaryFlowDir `
         --start $Start --end $End --fps 10 --required-hits 2 --alpha 0.25 `
         --flow-max-gap 7 --hold-max-gap 0.8 --cut-threshold 0.60 --feature-factor 1.6
-    if ($LASTEXITCODE -ne 0) { throw "中央裁判器光流细化失败" }
+    if ($LASTEXITCODE -ne 0) { throw "Central score-box optical-flow refinement failed" }
 
     $flowQualityPath = Join-Path $primaryFlowDir "quality_gate.json"
     & $Python (Join-Path $scriptDir "validate_primary_flow_v472.py") `
         $InputVideo (Join-Path $primaryFlowDir "stable_device_track.csv") $flowQualityPath `
         --start $Start --end $End
-    if ($LASTEXITCODE -ne 0) { throw "中央裁判器光流质量检查失败" }
+    if ($LASTEXITCODE -ne 0) { throw "Central score-box optical-flow quality check failed" }
     $flowQuality = Get-Content -LiteralPath $flowQualityPath -Raw | ConvertFrom-Json
     $routeData | Add-Member -NotePropertyName primary_flow_quality -NotePropertyValue $flowQuality -Force
     if ($flowQuality.qualified) {
@@ -136,13 +136,13 @@ elseif ($routeData.route -in @("primary_v46", "review_required")) {
             $InputVideo (Join-Path $primaryFlowDir "stable_device_track.csv") $primaryInterpolationDir `
             --start $Start --end $End --fps 10 --maximum-gap 25 `
             --maximum-center-distance 0.04 --maximum-area-ratio 1.9
-        if ($LASTEXITCODE -ne 0) { throw "中央裁判器保守间隙补全失败" }
+        if ($LASTEXITCODE -ne 0) { throw "Central score-box conservative gap filling failed" }
 
         $interpolationQualityPath = Join-Path $primaryInterpolationDir "quality_gate.json"
         & $Python (Join-Path $scriptDir "validate_primary_flow_v472.py") `
             $InputVideo (Join-Path $primaryInterpolationDir "stable_device_track_interpolated.csv") `
             $interpolationQualityPath --start $Start --end $End
-        if ($LASTEXITCODE -ne 0) { throw "中央裁判器补全轨迹质量检查失败" }
+        if ($LASTEXITCODE -ne 0) { throw "Central score-box filled-track quality check failed" }
         $interpolationQuality = Get-Content -LiteralPath $interpolationQualityPath -Raw | ConvertFrom-Json
         $interpolationSummary = Get-Content -LiteralPath (Join-Path $primaryInterpolationDir "summary.json") -Raw | ConvertFrom-Json
         $routeData | Add-Member -NotePropertyName primary_interpolation_quality -NotePropertyValue $interpolationQuality -Force
@@ -161,4 +161,4 @@ elseif ($routeData.route -in @("primary_v46", "review_required")) {
     $routeData | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $routePath -Encoding utf8
 }
 
-Write-Host "自动路由探测完成：$routePath"
+Write-Host "Automatic route probing completed: $routePath"

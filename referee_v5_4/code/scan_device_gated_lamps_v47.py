@@ -18,7 +18,7 @@ from diagnose_temporal_onset_v46 import activation
 
 
 DEFAULT_LAMP_MODEL = Path(
-    r"D:\Codex输出\SaberVision_lamp_state_training_v1"
+    r"D:\SaberVision_data\SaberVision_lamp_state_training_v1"
     r"\stage60_physical_lamp_yolo_v45b_checkpoint_selection\weights\last.pt"
 )
 

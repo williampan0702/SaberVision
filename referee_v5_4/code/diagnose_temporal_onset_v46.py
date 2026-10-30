@@ -9,19 +9,19 @@ from ultralytics import YOLO
 
 
 MODEL = Path(
-    r"D:\Codex输出\SaberVision_lamp_state_training_v1\stage60_physical_lamp_yolo_v45b_checkpoint_selection\weights\last.pt"
+    r"D:\SaberVision_data\SaberVision_lamp_state_training_v1\stage60_physical_lamp_yolo_v45b_checkpoint_selection\weights\last.pt"
 )
 CAIRO = Path(
-    r"D:\Codex输出\SaberVision_training_sources\blind_holdout_v4_4_final\sources\cairo_2026_blind.mp4"
+    r"D:\SaberVision_data\SaberVision_training_sources\blind_holdout_v4_4_final\sources\cairo_2026_blind.mp4"
 )
 HONG_KONG = Path(
-    r"D:\Codex输出\SaberVision_training_sources\blind_holdout_v4_4_final\sources\hong_kong_2026_blind.mp4"
+    r"D:\SaberVision_data\SaberVision_training_sources\blind_holdout_v4_4_final\sources\hong_kong_2026_blind.mp4"
 )
 PLOVDIV = Path(
-    r"D:\Codex输出\SaberVision_training_sources\blind_holdout_v4_3_final\sources\plovdiv_2025_blind.mp4"
+    r"D:\SaberVision_data\SaberVision_training_sources\blind_holdout_v4_3_final\sources\plovdiv_2025_blind.mp4"
 )
 TBILISI = Path(
-    r"D:\Codex输出\SaberVision_training_sources\full_videos\test\tbilisi_georgia.mp4"
+    r"D:\SaberVision_data\SaberVision_training_sources\full_videos\test\tbilisi_georgia.mp4"
 )
 
 CASES = [

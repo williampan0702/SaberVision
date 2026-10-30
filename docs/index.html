@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="SaberVision 佩剑判罚 MVP：Pose、剑身、裁判器亮灯与同步证据融合演示。">
+  <meta name="description" content="SaberVision MVP: a fencing pose, score-box lamp, blade-direction, and synchronized-evidence prototype.">
   <title>SaberVision MVP</title>
   <style>
     :root { color-scheme: dark; --bg:#071018; --panel:#0d1b26; --line:#244052; --text:#edf7fb; --muted:#9ab2bf; --cyan:#3de2d0; --amber:#ffbd59; }
@@ -32,28 +32,28 @@
   <main>
     <span class="tag">⚔ OFFLINE PROTOTYPE</span>
     <h1>Saber<span>Vision</span></h1>
-    <p class="lead">把运动员检测、精细 Pose、护手盘—剑尖方向、裁判器亮灯和时间同步证据组合成一个可运行的佩剑判罚原型。</p>
-    <div class="notice">这是工程原型，不是正式比赛认证裁判系统。网页展示真实离线运行结果；完整视频推理需要在 Python/FFmpeg 环境中运行。</div>
+    <p class="lead">A working sabre-refereeing prototype that combines fencer detection, detailed pose estimation, guard-to-tip direction, score-box lamps, and time-synchronized evidence.</p>
+    <div class="notice">This is an engineering prototype, not an officially certified competition referee. This page shows genuine offline results; full video inference runs in a local Python and FFmpeg environment.</div>
 
     <video controls preload="metadata" poster="assets/demo-poster.jpg">
       <source src="assets/SaberVision_MVP_demo.mp4" type="video/mp4">
-      浏览器不支持视频播放。
+      Your browser does not support embedded video.
     </video>
 
-    <section class="grid" aria-label="项目状态">
-      <article class="card"><div class="num">1/1</div><strong>灯源即可采用</strong><p>不做置信度投票，也不要求三个来源满足几个。</p></article>
-      <article class="card"><div class="num">100</div><strong>双灯工程样本</strong><p>跨场馆安全池；19 个双方不得分样本保持零错误自动给分。</p></article>
-      <article class="card"><div class="num">1.70</div><strong>自动优先权门槛</strong><p>0.35 秒与 0.75 秒两个窗口必须同向跨过门槛。</p></article>
+    <section class="grid" aria-label="Project status">
+      <article class="card"><div class="num">1/1</div><strong>One clear lamp source is enough</strong><p>The system does not use confidence voting or an N-of-3 requirement.</p></article>
+      <article class="card"><div class="num">100</div><strong>Double-light engineering cases</strong><p>A cross-venue safety set, including 19 no-award cases with zero incorrect automatic awards.</p></article>
+      <article class="card"><div class="num">1.70</div><strong>Automatic priority threshold</strong><p>The 0.35 s and 0.75 s motion windows must cross the threshold in the same direction.</p></article>
     </section>
 
-    <h2>现在能做什么</h2>
-    <p>输入单回合视频后，流水线会输出带 Pose 与判罚叠加的 H.264 视频、机器可读的 <code>verdict.json</code>，以及需要人工判断时的 12 帧图和 0.5 倍速复核页。</p>
+    <h2>What it produces</h2>
+    <p>Given one exchange clip, the pipeline produces an H.264 video with pose and decision overlays, a machine-readable <code>verdict.json</code>, and a review page with a 12-frame contact sheet and half-speed clip whenever human review is required.</p>
     <div class="actions">
-      <a class="button" href="sample-verdict.json">查看样例判罚 JSON</a>
-      <a class="button secondary" href="README_中文.md">本地运行说明</a>
+      <a class="button" href="sample-verdict.json">View sample verdict JSON</a>
+      <a class="button secondary" href="RUNNING_LOCALLY.md">Run locally</a>
     </div>
 
-    <footer>灯状态与佩剑优先权分开处理：看清哪盏灯是一件事，判定谁有优先权是另一件事。</footer>
+    <footer>Lamp-state recognition and sabre priority are handled separately: identifying which lamp is on is different from deciding who has priority.</footer>
   </main>
 </body>
 </html>

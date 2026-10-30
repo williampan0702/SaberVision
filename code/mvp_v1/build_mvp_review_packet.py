@@ -297,33 +297,33 @@ def render_review_index(rows: list[dict]) -> str:
             clip_name = Path(str(clip)).name
             clip_html = (
                 f"<video controls preload='metadata' src='{html.escape(clip_name)}'>"
-                "浏览器不支持内嵌视频，可点击下方静态复核图。</video>"
+                "Your browser does not support embedded video. Use the contact sheet below.</video>"
             )
         cards.append(
             "<article class='card'>"
-            f"<h2>事件 {html.escape(str(row['event_id']))} · "
+            f"<h2>Event {html.escape(str(row['event_id']))} · "
             f"{html.escape(str(row.get('device_display') or row.get('touch_state') or 'unknown').upper())}</h2>"
-            f"<p><b>亮灯：</b>{html.escape(str(row.get('start_sec')))} 秒　"
-            f"<b>状态：</b>{html.escape(str(row.get('verdict_status') or 'review_required'))}</p>"
-            f"<p><b>设备证据：</b>{html.escape(str(row.get('device_summary') or 'unavailable'))}</p>"
-            f"<p class='cue'><b>动作提示：</b>{html.escape(str(row['motion_cue']))}</p>"
+            f"<p><b>Lamp onset:</b> {html.escape(str(row.get('start_sec')))} s &nbsp;"
+            f"<b>Status:</b> {html.escape(str(row.get('verdict_status') or 'review_required'))}</p>"
+            f"<p><b>Score-box evidence:</b> {html.escape(str(row.get('device_summary') or 'unavailable'))}</p>"
+            f"<p class='cue'><b>Motion cue:</b> {html.escape(str(row['motion_cue']))}</p>"
             f"{clip_html}"
             f"<a href='{html.escape(sheet_name)}'><img src='{html.escape(sheet_name)}' "
-            f"alt='事件 {html.escape(str(row['event_id']))} 的 12 帧复核图'></a>"
+            f"alt='12-frame review sheet for event {html.escape(str(row['event_id']))}'></a>"
             "</article>"
         )
     content = "\n".join(cards) if cards else (
-        "<section class='empty'><h2>没有待人工复核的事件</h2>"
-        "<p>本次输入中的事件均已得到最终结论，或没有检测到有效亮灯。</p></section>"
+        "<section class='empty'><h2>No events require manual review</h2>"
+        "<p>Every event has a final result, or no valid lamp event was detected.</p></section>"
     )
     return f"""<!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SaberVision 双灯复核</title>
+<title>SaberVision Double-Light Review</title>
 <style>
-body {{ margin:0; background:#11151a; color:#eaf0f5; font-family:"Microsoft YaHei",sans-serif; }}
+body {{ margin:0; background:#11151a; color:#eaf0f5; font-family:system-ui,sans-serif; }}
 main {{ width:min(1320px,94vw); margin:30px auto 60px; }}
 h1 {{ margin-bottom:8px; }} .notice {{ color:#ffd36a; margin:0 0 24px; }}
 .card,.empty {{ background:#1b222a; border:1px solid #354351; border-radius:12px; padding:18px; margin:18px 0; }}
@@ -333,8 +333,8 @@ a {{ color:inherit; }}
 </style>
 </head>
 <body><main>
-<h1>SaberVision 双灯待复核事件</h1>
-<p class="notice">动作提示只用于快速定位画面证据，不是正式佩剑优先权判罚。</p>
+<h1>SaberVision Double-Light Events Requiring Review</h1>
+<p class="notice">Motion cues help locate visual evidence; they are not official sabre priority decisions.</p>
 {content}
 </main></body></html>
 """

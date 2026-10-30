@@ -18,7 +18,7 @@ from torchvision import models
 from build_lit_lamp_candidate_dataset_v43 import candidate_crop, components
 
 
-DEFAULT_MODEL = Path(r"D:\Codex输出\SaberVision_lamp_state_training_v1\stage45_lit_lamp_classifier_v43\lit_lamp_resnet18_v43.pt")
+DEFAULT_MODEL = Path(r"D:\SaberVision_data\SaberVision_lamp_state_training_v1\stage45_lit_lamp_classifier_v43\lit_lamp_resnet18_v43.pt")
 
 
 @dataclass

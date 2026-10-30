@@ -13,7 +13,7 @@ from scan_physical_lamps_v43 import center, scene_cut, stable_tracks, update_tra
 
 
 DEFAULT_MODEL = Path(
-    r"D:\Codex输出\SaberVision_referee_recognition_v4_6_experimental"
+    r"D:\SaberVision_data\SaberVision_referee_recognition_v4_6_experimental"
     r"\models\physical_lamp_locator_v45b.pt"
 )
 

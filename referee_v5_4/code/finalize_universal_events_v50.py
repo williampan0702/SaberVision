@@ -38,20 +38,20 @@ def read_rows(path: Path) -> list[dict[str, str]]:
 def route_quality(route_data: dict) -> tuple[bool, str]:
     route = route_data.get("route", "no_visible_device")
     if route not in SAFE_ROUTES:
-        return False, "定位路线未通过自动安全门"
+        return False, "Localization route did not pass the automatic safety gate"
     if route.startswith("primary_flow"):
         quality = route_data.get("primary_flow_quality", {})
         if not quality.get("qualified", False):
-            return False, "光流轨迹质量门未通过"
+            return False, "Optical-flow track did not pass the quality gate"
     metrics = route_data.get("metrics", {})
     minimum = int(route_data.get("thresholds", {}).get("minimum_valid_frames", 20))
     if route == "triple_panel" and metrics.get("triple_panel", {}).get("valid_frames", 0) < minimum:
-        return False, f"三区域可靠帧不足 {minimum}"
+        return False, f"Three-zone reliable-frame count is below {minimum}"
     if route == "dual_scoreboard" and metrics.get("dual_scoreboard", {}).get("valid_frames", 0) < minimum:
-        return False, f"双比分屏可靠帧不足 {minimum}"
+        return False, f"Dual-score-screen reliable-frame count is below {minimum}"
     if route == "structure_assisted" and metrics.get("structure_assisted", {}).get("valid_frames", 0) < minimum:
-        return False, f"结构辅助可靠帧不足 {minimum}"
-    return True, "定位路线通过自动安全门"
+        return False, f"Structure-assisted reliable-frame count is below {minimum}"
+    return True, "Localization route passed the automatic safety gate"
 
 
 def confidence(row: dict[str, str], route: str) -> str:
@@ -119,7 +119,7 @@ def main() -> None:
         if qualified and normalized["confidence_tier"] != "review":
             accepted.append(normalized)
         else:
-            review.append({**normalized, "review_reason": quality_reason if not qualified else "证据强度不足"})
+            review.append({**normalized, "review_reason": quality_reason if not qualified else "Insufficient evidence strength"})
     for index, row in enumerate(accepted, 1):
         row["event_id"] = index
     for index, row in enumerate(review, 1):
@@ -142,7 +142,7 @@ def main() -> None:
         "candidate_events": len(candidates),
         "automatic_events": len(accepted),
         "review_events": len(review),
-        "safety_policy": "低质量定位或弱证据只进入 review_events.csv，不进入 final_events.csv",
+        "safety_policy": "Low-quality localization or weak evidence goes only to review_events.csv, never final_events.csv",
     }
     (args.output / "summary.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"

@@ -134,7 +134,7 @@ def add_audit_metadata(result: dict[str, Any], manifest_path: Path) -> dict[str,
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="校验 SaberVision MVP 运行产物")
+    parser = argparse.ArgumentParser(description="Verify SaberVision MVP run outputs")
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--output-json", type=Path)
     parser.add_argument("--include-inputs", action="store_true")

@@ -9,12 +9,12 @@ from validate_dual_scoreboard_lamp_events_v47 import read_csv
 
 
 REVIEW_NOTES = {
-    5: ("review", "low", "红灯明确；绿灯只持续单帧，自动状态暂保留 left，可能实际为 double。"),
-    8: ("high", "high", "同一次双灯被短暂丢框拆成两段，已合并。"),
-    9: ("review", "medium", "亮灯持续较短，但交锋与红灯均可见。"),
-    10: ("review", "medium", "红灯较弱，降低红色阈值后恢复；交锋可见。"),
-    15: ("review", "medium", "快速平移中短亮灯；交锋可见。"),
-    20: ("high", "high", "终局红灯被短暂缺帧拆分，已合并。"),
+    5: ("review", "low", "Red is clear; green lasts only one frame. The automatic state remains left, but the event may be double."),
+    8: ("high", "high", "One double-light event was split by a brief lost box and has been merged."),
+    9: ("review", "medium", "The lamp interval is short, but both the exchange and red lamp are visible."),
+    10: ("review", "medium", "The weak red lamp was recovered with a lower red threshold; the exchange is visible."),
+    15: ("review", "medium", "A short lamp interval occurs during a fast pan; the exchange is visible."),
+    20: ("high", "high", "The final red lamp was split by briefly missing frames and has been merged."),
 }
 
 
@@ -29,7 +29,7 @@ def main() -> None:
     rows = []
     for index, event in enumerate(events, start=1):
         automatic, state_confidence, note = REVIEW_NOTES.get(
-            index, ("high", "high", "逐帧总览中裁判器框与灯光一致。")
+            index, ("high", "high", "The score-box track and lamp state agree in the frame-by-frame review.")
         )
         rows.append(
             {

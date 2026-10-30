@@ -2,8 +2,6 @@
 
 SaberVision is an offline prototype that combines fencer detection, fencing pose estimation, coarse blade-direction estimation, score-box lamp recognition, synchronized evidence fusion, and conservative sabre adjudication.
 
-Chinese documentation: [README_中文.md](README_中文.md)
-
 ## Repository and deployment model
 
 - The included GitHub Pages workflow can publish the product demo and a sample verdict.
@@ -25,7 +23,7 @@ GitHub Pages cannot execute PyTorch/CUDA or FFmpeg. Full video inference therefo
 4. Process one exchange clip:
 
    ```powershell
-   & ".\启动_SaberVision_MVP.ps1" -InputVideo "D:\path\exchange.mp4"
+   & ".\run_sabervision_mvp.ps1" -InputVideo "D:\path\exchange.mp4"
    ```
 
 Add `-Reuse` only when rerunning the same video with the same model files. The
@@ -50,7 +48,7 @@ Verify the signed outputs of a completed run (this also works after moving the
 entire result directory):
 
 ```powershell
-& ".\检查_MVP_运行产物.ps1" -Manifest "D:\path\result\run_manifest.json"
+& ".\verify_mvp_outputs.ps1" -Manifest "D:\path\result\run_manifest.json"
 ```
 
 Add `-IncludeInputs` for a full reproducibility audit that also verifies the
@@ -61,7 +59,7 @@ To inspect the exact Python, PyTorch build, CUDA availability, GPU name,
 FFmpeg tools, dependencies, and bundled weights before a long run:
 
 ```powershell
-& ".\检查_SaberVision_运行环境.ps1"
+& ".\check_sabervision_environment.ps1"
 ```
 
 The launchers first look for `%USERPROFILE%\.conda\envs\torch\python.exe`, then

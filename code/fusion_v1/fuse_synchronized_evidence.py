@@ -30,9 +30,9 @@ def normalize_state(value: object) -> str | None:
         return None
     text = str(value).strip().lower()
     aliases = {
-        "l": "left", "left_on": "left", "左": "left",
-        "r": "right", "right_on": "right", "右": "right",
-        "both": "double", "双": "double", "double_light": "double",
+        "l": "left", "left_on": "left",
+        "r": "right", "right_on": "right",
+        "both": "double", "double_light": "double",
     }
     text = aliases.get(text, text)
     return text if text in VALID_STATES else None

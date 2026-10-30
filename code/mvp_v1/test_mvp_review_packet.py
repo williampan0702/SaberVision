@@ -68,8 +68,8 @@ class MotionSummaryTests(unittest.TestCase):
             "review_clip": "event_2_review.mp4",
             "review_sheet": "event_2_review.jpg",
         }])
-        self.assertIn("不是正式佩剑优先权判罚", content)
-        self.assertIn("事件 2", content)
+        self.assertIn("not official sabre priority decisions", content)
+        self.assertIn("Event 2", content)
         self.assertIn("event_2_review.jpg", content)
         self.assertIn("event_2_review.mp4", content)
         self.assertIn("<video", content)

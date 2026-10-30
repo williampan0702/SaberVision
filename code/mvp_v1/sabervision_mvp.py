@@ -325,7 +325,7 @@ def run_stage(
     expected_paths = list(expected)
     cached_issues = artifact_issues(expected_paths)
     if reuse and expected_paths and not cached_issues:
-        print(f"[MVP] {name}: 复用已有结果", flush=True)
+        print(f"[MVP] {name}: reusing existing output", flush=True)
         stages.append(
             {
                 "name": name,
@@ -339,7 +339,7 @@ def run_stage(
 
     log_dir.mkdir(parents=True, exist_ok=True)
     log_path = log_dir / f"{name}.log"
-    print(f"[MVP] {name}: 开始", flush=True)
+    print(f"[MVP] {name}: started", flush=True)
     started = time.perf_counter()
     record: dict[str, Any] = {
         "name": name,
@@ -371,16 +371,16 @@ def run_stage(
     if completed.returncode != 0:
         save_checkpoint()
         tail = log_path.read_text(encoding="utf-8", errors="replace").splitlines()[-30:]
-        raise RuntimeError(f"阶段 {name} 失败，详见 {log_path}\n" + "\n".join(tail))
+        raise RuntimeError(f"Stage {name} failed. See {log_path}\n" + "\n".join(tail))
     generated_issues = artifact_issues(expected_paths)
     if generated_issues:
         record["status"] = "failed"
         record["artifact_errors"] = generated_issues
         save_checkpoint()
         details = "、".join(f"{path} ({reason})" for path, reason in generated_issues.items())
-        raise RuntimeError(f"阶段 {name} 产物无效：{details}")
+        raise RuntimeError(f"Stage {name} produced invalid output: {details}")
     save_checkpoint()
-    print(f"[MVP] {name}: 完成（{elapsed:.1f} 秒）", flush=True)
+    print(f"[MVP] {name}: completed in {elapsed:.1f} s", flush=True)
 
 
 def discover_one(root: Path, filename: str) -> Path | None:
@@ -406,7 +406,7 @@ def transcode_h264(
         shutil.copy2(source, destination)
         issue = artifact_issue(destination)
         if issue:
-            raise RuntimeError(f"转码兜底复制产物无效：{destination} ({issue})")
+            raise RuntimeError(f"Fallback transcoding produced invalid output: {destination} ({issue})")
         stages.append(
             {
                 "name": "h264_transcode",
@@ -446,13 +446,13 @@ def parser() -> argparse.ArgumentParser:
         "models/fencer_v4.pt",
     )
     default_pose = default_path(
-        "outputs/Pose_v1_真实验证集100/training_runs/delivery/yolo11n_fencing_pose_v1_crops_best.pt",
+        "outputs/Pose_v1_validation100/training_runs/delivery/yolo11n_fencing_pose_v1_crops_best.pt",
         "models/fencing_pose_v1.pt",
     )
     default_fallback = default_path("models/yolo11n-pose.pt")
     default_referee = first_existing(
         [
-            Path(r"D:\Codex输出\SaberVision_referee_recognition_v5_4_physical_fusion\run_universal_referee_v54.ps1"),
+            Path(r"D:\SaberVision_data\SaberVision_referee_recognition_v5_4_physical_fusion\run_universal_referee_v54.ps1"),
             REPO_ROOT / "referee_v5_4/run_universal_referee_v54.ps1",
             (HERE.parents[2] / "referee_v5_4/run_universal_referee_v54.ps1")
             if len(HERE.parents) > 2
@@ -460,7 +460,7 @@ def parser() -> argparse.ArgumentParser:
         ]
     )
 
-    p = argparse.ArgumentParser(description="SaberVision 离线判罚 MVP 一键流水线")
+    p = argparse.ArgumentParser(description="SaberVision offline adjudication MVP pipeline")
     p.add_argument("--video", type=Path, required=True)
     p.add_argument("--output-dir", type=Path, required=True)
     p.add_argument("--python", type=Path, default=Path(sys.executable))
@@ -470,8 +470,8 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--referee-runner", type=Path, default=default_referee)
     p.add_argument("--device-final", type=Path, action="append", default=[])
     p.add_argument("--device-review", type=Path, action="append", default=[])
-    p.add_argument("--reuse", action="store_true", help="存在完整阶段输出时复用")
-    p.add_argument("--skip-blade", action="store_true", help="仅用于调试；最终 MVP 建议保留剑身证据")
+    p.add_argument("--reuse", action="store_true", help="Reuse complete stage outputs when safe")
+    p.add_argument("--skip-blade", action="store_true", help="Debug only; the final MVP should retain blade evidence")
     return p
 
 
@@ -523,18 +523,18 @@ def main() -> int:
     review_packet_script = HERE / "build_mvp_review_packet.py"
 
     required = {
-        "输入视频": video,
-        "运动员模型": args.fencer_model,
-        "Pose 模型": args.pose_model,
-        "通用 Pose 兜底模型": args.fallback_person_model,
-        "Pose 脚本": pose_script,
-        "动作脚本": action_script,
-        "判罚脚本": decision_script,
-        "渲染脚本": render_script,
-        "双灯复核图脚本": review_packet_script,
+        "input video": video,
+        "fencer model": args.fencer_model,
+        "pose model": args.pose_model,
+        "fallback person model": args.fallback_person_model,
+        "pose script": pose_script,
+        "action script": action_script,
+        "decision script": decision_script,
+        "render script": render_script,
+        "double-light review script": review_packet_script,
     }
     if not args.skip_blade:
-        required.update({"剑身脚本": blade_script, "剑身时序脚本": blade_timing_script})
+        required.update({"blade script": blade_script, "blade timing script": blade_timing_script})
     dependency_failures: list[str] = []
     for name, path in required.items():
         if path is None:
@@ -544,19 +544,19 @@ def main() -> int:
         if issue:
             dependency_failures.append(f"{name} ({issue})")
     for kind, paths in (
-        ("裁判器自动证据", args.device_final),
-        ("裁判器人工复核证据", args.device_review),
+        ("automatic score-box evidence", args.device_final),
+        ("reviewed score-box evidence", args.device_review),
     ):
         for index, path in enumerate(paths, start=1):
             issue = device_evidence_issue(path)
             if issue:
                 dependency_failures.append(f"{kind} {index} ({issue})")
     if dependency_failures:
-        message = "MVP 依赖无效：" + "、".join(dependency_failures)
+        message = "Invalid MVP dependencies: " + ", ".join(dependency_failures)
         manifest["status"] = "failed"
         manifest["error"] = message
         finish_manifest(manifest_path, manifest, run_started)
-        print(f"[MVP] 失败：{message}", file=sys.stderr, flush=True)
+        print(f"[MVP] failed: {message}", file=sys.stderr, flush=True)
         return 1
 
     manifest["models"] = {
@@ -591,9 +591,9 @@ def main() -> int:
         )
     except OSError as exc:
         manifest["status"] = "failed"
-        manifest["error"] = f"无法读取输入、模型或流水线实现指纹：{exc}"
+        manifest["error"] = f"Unable to fingerprint inputs, models, or pipeline implementation: {exc}"
         finish_manifest(manifest_path, manifest, run_started)
-        print(f"[MVP] 失败：{manifest['error']}", file=sys.stderr, flush=True)
+        print(f"[MVP] failed: {manifest['error']}", file=sys.stderr, flush=True)
         return 1
     manifest["input_signature"] = input_signature
     manifest["model_signatures"] = model_signatures
@@ -623,11 +623,11 @@ def main() -> int:
         if args.reuse:
             if previous_manifest_error:
                 raise ValueError(
-                    "无法安全复用：旧 run_manifest.json 无法读取。"
-                    "请改用新的输出目录，或不带 --reuse 重新运行。"
+                    "Safe reuse is unavailable because the existing run_manifest.json cannot be read. "
+                    "Use a new output directory or rerun without --reuse."
                 )
             if previous_manifest is None:
-                print("[MVP] 未找到旧运行清单，本次执行完整流水线", flush=True)
+                print("[MVP] no existing run manifest found; running the full pipeline", flush=True)
             else:
                 mismatches = reuse_mismatches(
                     previous_manifest,
@@ -638,13 +638,13 @@ def main() -> int:
                 manifest["reuse"]["mismatches"] = mismatches
                 if mismatches:
                     raise ValueError(
-                        "无法安全复用，输入视频、模型或流水线实现与旧结果不一致："
+                        "Safe reuse is unavailable because the input video, models, or pipeline implementation differ from the cached result: "
                         + "、".join(mismatches)
-                        + "。请改用新的输出目录，或不带 --reuse 重新运行。"
+                        + ". Use a new output directory or rerun without --reuse."
                     )
                 reuse_enabled = True
                 manifest["reuse"]["enabled"] = True
-                print("[MVP] 缓存指纹验证通过", flush=True)
+                print("[MVP] cache fingerprints verified", flush=True)
         run_stage(
             "pose",
             [
@@ -746,7 +746,7 @@ def main() -> int:
             manifest["device_source_policy"] = "explicit_external_sources"
         if not device_final and not device_review:
             if args.referee_runner is None or not args.referee_runner.exists():
-                raise FileNotFoundError("未提供裁判器结果，也未找到 v5.4 裁判器一键脚本")
+                raise FileNotFoundError("No score-box results were provided and the v5.4 score-box runner was not found")
             device_dir = output_dir / "device"
             final_found = discover_one(device_dir, "final_events.csv")
             review_found = discover_one(device_dir, "review_events.csv")
@@ -765,11 +765,11 @@ def main() -> int:
                     }
                 )
                 checkpoint()
-                print("[MVP] scorebox: 复用已有结果", flush=True)
+                print("[MVP] scorebox: reusing existing output", flush=True)
             else:
                 powershell = shutil.which("powershell.exe") or shutil.which("powershell")
                 if powershell is None:
-                    raise FileNotFoundError("找不到 PowerShell，无法运行裁判器识别模块")
+                    raise FileNotFoundError("PowerShell was not found, so the score-box module cannot run")
                 run_stage(
                     "scorebox",
                     [
@@ -939,13 +939,13 @@ def main() -> int:
             name: file_signature(path) for name, path in signed_outputs.items()
         }
         manifest["status"] = "complete"
-        print(f"[MVP] 全部完成：{final_demo}", flush=True)
-        print(f"[MVP] 判罚结果：{verdict_json}", flush=True)
+        print(f"[MVP] completed: {final_demo}", flush=True)
+        print(f"[MVP] decision: {verdict_json}", flush=True)
         return 0
     except Exception as exc:
         manifest["status"] = "failed"
         manifest["error"] = str(exc)
-        print(f"[MVP] 失败：{exc}", file=sys.stderr, flush=True)
+        print(f"[MVP] failed: {exc}", file=sys.stderr, flush=True)
         return 1
     finally:
         finish_manifest(manifest_path, manifest, run_started)

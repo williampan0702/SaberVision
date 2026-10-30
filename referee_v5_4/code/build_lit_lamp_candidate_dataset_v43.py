@@ -14,11 +14,11 @@ import numpy as np
 
 
 WORKSPACE = Path(__file__).resolve().parents[1]
-DEFAULT_OUTPUT = Path(r"D:\Codex输出\SaberVision_lamp_state_training_v1\stage44_lit_lamp_candidates_v43")
-KNOWN_ROOT = Path(r"D:\Codex输出\SaberVision_training_sources\cross_venue_v4\known_event_clips")
-SINT_ROOT = Path(r"D:\Codex输出\SaberVision_training_sources\single_lamp_supplement\verified_fullres_clips")
-BLIND_ROOT = Path(r"D:\Codex输出\SaberVision_training_sources\blind_holdout_v4_1\sources")
-STAGE1_MANIFEST = Path(r"D:\Codex输出\SaberVision_referee_dataset_stage1_v1\stage1_final_v3\training_pool_manifest.csv")
+DEFAULT_OUTPUT = Path(r"D:\SaberVision_data\SaberVision_lamp_state_training_v1\stage44_lit_lamp_candidates_v43")
+KNOWN_ROOT = Path(r"D:\SaberVision_data\SaberVision_training_sources\cross_venue_v4\known_event_clips")
+SINT_ROOT = Path(r"D:\SaberVision_data\SaberVision_training_sources\single_lamp_supplement\verified_fullres_clips")
+BLIND_ROOT = Path(r"D:\SaberVision_data\SaberVision_training_sources\blind_holdout_v4_1\sources")
+STAGE1_MANIFEST = Path(r"D:\SaberVision_data\SaberVision_referee_dataset_stage1_v1\stage1_final_v3\training_pool_manifest.csv")
 SEED = 20260827
 
 

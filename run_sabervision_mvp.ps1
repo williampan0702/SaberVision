@@ -28,10 +28,10 @@ if ([string]::IsNullOrWhiteSpace($Python)) {
 }
 
 if (-not (Test-Path -LiteralPath $InputVideo -PathType Leaf)) {
-    throw "找不到输入视频：$InputVideo"
+    throw "Input video not found: $InputVideo"
 }
 if (-not (Test-Path -LiteralPath $Python -PathType Leaf)) {
-    throw "找不到 Python。请用 -Python 指定已安装 PyTorch 的 python.exe。"
+    throw "Python was not found. Use -Python to specify a python.exe with PyTorch installed."
 }
 if ([string]::IsNullOrWhiteSpace($OutputDir)) {
     $stem = [System.IO.Path]::GetFileNameWithoutExtension($InputVideo)
@@ -54,21 +54,21 @@ if ($Reuse) {
 
 & $Python @arguments
 if ($LASTEXITCODE -ne 0) {
-    throw "MVP 运行失败。请查看 $OutputDir\run_manifest.json 和 logs 文件夹。"
+    throw "The MVP run failed. Check $OutputDir\run_manifest.json and the logs directory."
 }
 
 Write-Host ""
-Write-Host "SaberVision MVP 已完成" -ForegroundColor Green
-Write-Host "演示视频：$OutputDir\SaberVision_MVP_demo.mp4"
-Write-Host "判罚结果：$OutputDir\decision\verdict.json"
+Write-Host "SaberVision MVP completed" -ForegroundColor Green
+Write-Host "Demo video: $OutputDir\SaberVision_MVP_demo.mp4"
+Write-Host "Decision: $OutputDir\decision\verdict.json"
 $reviewSummary = Join-Path $OutputDir "decision\review_packet_summary.json"
 if (Test-Path -LiteralPath $reviewSummary -PathType Leaf) {
     $review = Get-Content -LiteralPath $reviewSummary -Raw | ConvertFrom-Json
     if ([int]$review.review_events -gt 0) {
-        Write-Host "待复核事件：$($review.review_events) 个" -ForegroundColor Yellow
-        Write-Host "复核动作图：$OutputDir\decision\review_packets"
-        Write-Host "复核浏览页：$($review.review_index)"
+        Write-Host "Events requiring review: $($review.review_events)" -ForegroundColor Yellow
+        Write-Host "Review contact sheets: $OutputDir\decision\review_packets"
+        Write-Host "Review page: $($review.review_index)"
     } else {
-        Write-Host "待复核事件：0 个"
+        Write-Host "Events requiring review: 0"
     }
 }

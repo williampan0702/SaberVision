@@ -12,10 +12,10 @@ $verifier = Join-Path $projectRoot "code\mvp_v1\verify_run_manifest.py"
 $manifestPath = [System.IO.Path]::GetFullPath($Manifest)
 
 if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
-    throw "找不到运行清单：$manifestPath"
+    throw "Run manifest not found: $manifestPath"
 }
 if (-not (Test-Path -LiteralPath $verifier -PathType Leaf)) {
-    throw "找不到产物校验器：$verifier"
+    throw "Output verifier not found: $verifier"
 }
 if ([string]::IsNullOrWhiteSpace($Python)) {
     $preferredPython = Join-Path $env:USERPROFILE ".conda\envs\torch\python.exe"
@@ -25,7 +25,7 @@ if ([string]::IsNullOrWhiteSpace($Python)) {
     else {
         $command = Get-Command python -ErrorAction SilentlyContinue
         if ($null -eq $command) {
-            throw "找不到 Python。请用 -Python 指定 python.exe。"
+            throw "Python was not found. Use -Python to specify python.exe."
         }
         $Python = $command.Source
     }
@@ -43,6 +43,6 @@ if ($IncludeInputs) {
 }
 & $Python @arguments
 if ($LASTEXITCODE -ne 0) {
-    throw "产物校验失败；详情已写入：$OutputJson"
+    throw "Output verification failed. Details were written to: $OutputJson"
 }
-Write-Host "产物校验通过：$OutputJson" -ForegroundColor Green
+Write-Host "Output verification passed: $OutputJson" -ForegroundColor Green

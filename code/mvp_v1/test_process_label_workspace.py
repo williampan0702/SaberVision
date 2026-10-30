@@ -23,24 +23,24 @@ class WorkspaceTests(unittest.TestCase):
             "official_outcome": "left", "result_confidence": "high",
             "sequence_sheet": "C:/temp/case_01.jpg", "image": "case_01.jpg",
             "clip": "assets/clips/case_01.mp4",
-            "motion_hint": "左方在两个窗口有运动优势候选",
+            "motion_hint": "Left has a candidate motion advantage in both windows",
             "process_label": "", "attack_initiator": "", "parry_riposte_side": "",
             "process_confidence": "", "notes": "",
         }])
-        self.assertIn("导出 CSV", html)
+        self.assertIn("Export CSV", html)
         self.assertIn("localStorage", html)
-        self.assertIn("自动排除在训练集之外", html)
+        self.assertIn("automatically excluded from training", html)
         self.assertIn("case_01.jpg", html)
         self.assertIn("case_01.mp4", html)
         self.assertIn("playbackRate=.5", html)
-        self.assertIn("Pose 运动提示（非判罚）", html)
+        self.assertIn("Pose motion cue (not a decision)", html)
         self.assertIn("outcome_hidden_during_label", html)
         self.assertIn("process_label_source", html)
         self.assertIn("outcome_header_redacted", html)
         self.assertIn("join('\\r\\n')", html)
         self.assertIn("sabervision_phrase_labels_v4_blind", html)
         self.assertIn("sabervision.process.labels.v4", html)
-        self.assertIn("备份版本不匹配", html)
+        self.assertIn("Backup schema mismatch", html)
         self.assertNotIn("sabervision_phrase_labels_v1", html)
         self.assertNotIn("https://", html)
 
@@ -48,7 +48,7 @@ class WorkspaceTests(unittest.TestCase):
         rows = [{"case_id": "case_01", "process_label": ""}]
         # No feature file means an explicit unavailable hint, not an invented label.
         MODULE.add_motion_hints(rows, [])
-        self.assertEqual(rows[0]["motion_hint"], "Pose 运动提示不可用")
+        self.assertEqual(rows[0]["motion_hint"], "Pose motion cue unavailable")
         self.assertEqual(rows[0]["process_label"], "")
 
     def test_contact_sheet_result_header_is_redacted(self) -> None:

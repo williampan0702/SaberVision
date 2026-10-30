@@ -12,19 +12,19 @@
 )
 
 $ErrorActionPreference = "Stop"
-if ($SegmentSeconds -le 5) { throw "SegmentSeconds 必须大于 5 秒" }
+if ($SegmentSeconds -le 5) { throw "SegmentSeconds must be greater than 5 seconds" }
 if ($OverlapSeconds -lt 0 -or $OverlapSeconds -ge $SegmentSeconds / 2) {
-    throw "OverlapSeconds 必须非负且小于分段长度的一半"
+    throw "OverlapSeconds must be non-negative and less than half the segment length"
 }
 $packageRoot = $PSScriptRoot
 $codeDir = Join-Path $packageRoot "code"
 $videoInfoPath = Join-Path $OutputDir "video_info.json"
 New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 & $Python (Join-Path $codeDir "probe_video_info_v50.py") $InputVideo $videoInfoPath
-if ($LASTEXITCODE -ne 0) { throw "读取视频信息失败" }
+if ($LASTEXITCODE -ne 0) { throw "Unable to read video metadata" }
 $videoInfo = Get-Content -LiteralPath $videoInfoPath -Raw | ConvertFrom-Json
 if ($End -lt 0) { $End = [double]$videoInfo.duration_sec }
-if ($End -le $Start) { throw "End 必须大于 Start" }
+if ($End -le $Start) { throw "End must be greater than Start" }
 
 $segmentsDir = Join-Path $OutputDir "segments"
 New-Item -ItemType Directory -Force -Path $segmentsDir | Out-Null
@@ -43,14 +43,14 @@ while ($cursor -lt $End - 0.001) {
     }
     if ($NoPreview) { $runnerArgs["NoPreview"] = $true }
     & (Join-Path $packageRoot "run_universal_referee_v52.ps1") @runnerArgs
-    if ($LASTEXITCODE -ne 0) { throw "分段 $index 处理失败" }
+    if ($LASTEXITCODE -ne 0) { throw "Segment $index failed" }
     $cursor += $SegmentSeconds
     $index += 1
 }
 
 $finalDir = Join-Path $OutputDir "final"
 & $Python (Join-Path $codeDir "merge_universal_segments_v51.py") $segmentsDir $finalDir
-if ($LASTEXITCODE -ne 0) { throw "分段结果合并失败" }
+if ($LASTEXITCODE -ne 0) { throw "Unable to merge segment results" }
 if (-not $NoPreview) {
     & $Python (Join-Path $codeDir "render_segmented_demo_v51.py") `
         $InputVideo (Join-Path $finalDir "route_timeline.csv") `
@@ -58,6 +58,6 @@ if (-not $NoPreview) {
         (Join-Path $finalDir "review_events.csv") `
         (Join-Path $OutputDir "final_route_demo.mp4") `
         --start $Start --end $End
-    if ($LASTEXITCODE -ne 0) { throw "分段最终演示生成失败" }
+    if ($LASTEXITCODE -ne 0) { throw "Unable to render the final segmented demo" }
 }
-Write-Host "V5.4 分段实体裁判器融合识别完成：$OutputDir"
+Write-Host "V5.4 segmented physical score-box fusion completed: $OutputDir"

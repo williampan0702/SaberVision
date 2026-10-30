@@ -12,7 +12,7 @@ from ultralytics import YOLO
 from scan_physical_lamps_v43 import Track, center, scene_cut, stable_tracks, update_tracks, write_events
 
 
-DEFAULT_MODEL = Path(r"D:\Codex输出\SaberVision_lamp_state_training_v1\stage52_physical_lamp_yolo_v43\weights\best.pt")
+DEFAULT_MODEL = Path(r"D:\SaberVision_data\SaberVision_lamp_state_training_v1\stage52_physical_lamp_yolo_v43\weights\best.pt")
 
 
 def resolve_physical_state(stable, width: int, height: int):
